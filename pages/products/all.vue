@@ -2,15 +2,17 @@
 definePageMeta({
   layout: "products",
 });
+
+const isDelete = ref();
+
+const { data: prods, refresh } = await useApi("/admin/products", {
+  watch: [isDelete],
+});
+const { data: categories } = await useApi("/admin/categories", {});
+
 const searchRef = ref();
-const categories = [
-  { id: 1, title: "Сумки", count: "001" },
-  { id: 2, title: "Кошельки", count: "001" },
-  { id: 3, title: "Ремни", count: "001" },
-  { id: 4, title: "Рюкзаки", count: "001" },
-  { id: 5, title: "Подарки", count: "001" },
-];
 </script>
+
 <template>
   <div class="flex items-center">
     <UiTitle tag="h1">Список товаров</UiTitle>
@@ -24,7 +26,7 @@ const categories = [
     <FormSearchBar v-model="searchRef" />
 
     <ProductCategories class="mt-6" :data="categories" />
-    <div class="mt-6">
+    <!-- <div class="mt-6">
       <UiTitle tag="h2">Применённые фильтры</UiTitle>
       <div class="flex gap-2 mt-3"></div>
 
@@ -33,7 +35,7 @@ const categories = [
       >
         Для неё
       </div>
-    </div>
+    </div> -->
   </section>
 
   <section class="mt-8">
@@ -47,7 +49,12 @@ const categories = [
     </div>
 
     <div class="mt-4 bg-[#F7F7F8] rounded-[24px] p-[6px]">
-      <ProductsProductItem v-for="item in 10" />
+      <ProductsProductItem
+        v-for="item in prods"
+        :key="item.id"
+        :data="item"
+        :refresh="refresh"
+      />
     </div>
   </section>
 </template>

@@ -1,15 +1,10 @@
 <script setup>
-const people = [
-  { title: "Wade Cooper" },
-  { title: "Arlene Mccoy" },
-  { title: "Devon Webb" },
-  { title: "Tom Cook" },
-  { title: "Tanya Fox" },
-  { title: "Hellen Schmidt" },
-];
 const { data: categories } = await useApi("/admin/categories", {});
 const { data: collections } = await useApi("/admin/collections", {});
 const { data: types } = await useApi("/admin/types", {});
+
+const propductData = ref();
+const router = useRouter();
 
 const storeData = ref({
   title: "",
@@ -20,10 +15,31 @@ const storeData = ref({
   type_id: "",
 });
 
-const errorRef = ref();
-
 const storeProduct = async () => {
-  await useApi("/admin/products/store", {
+  const { data, error } = await useApi("/admin/products/store", {
+    method: "POST",
+    body: {
+      ...storeData.value,
+      is_man: storeData.value.is_man ? 1 : 0,
+      is_woman: storeData.value.is_woman ? 1 : 0,
+    },
+    onResponse({ request, response, options }) {
+      const id = response._data.id;
+      router.push(`/products/${id}/edit`);
+    },
+  });
+  // .then(() => {
+  //   propductData.value = data;
+  // })
+  // .them(() => {
+  //   router.push(`/products/${propductData.value.id}/edit`);
+  // });
+
+  // const { data: newProduct } = await useApi("");
+};
+
+const deleteProduct = async () => {
+  await useApi("/admin/products/2/delete", {
     method: "POST",
     body: {
       ...storeData.value,
@@ -50,16 +66,18 @@ const handleUpload = (e) => {
     <ButtonCancel title="Отмена" link="/products/all" />
   </div>
 
-  <pre>
-    {{ storeData }}
-  </pre>
+  <!-- <pre>
+    {{ propductData }}
+  </pre> -->
 
-  <pre>
-    {{ errorRef }}
-  </pre>
-  <form action="" class="mt-12 pb-20" @submit.prevent="storeProduct">
+  <form
+    v-if="!propductData"
+    action=""
+    class="mt-12 pb-20"
+    @submit.prevent="storeProduct"
+  >
     <FormInput
-      required="true"
+      :required="true"
       label="Название"
       placeholder="Название товара"
       v-model="storeData.title"
@@ -74,7 +92,7 @@ const handleUpload = (e) => {
         placeholder="Выберите категорию"
       />
       <FormDropdown
-        required="true"
+        :required="true"
         :list="collections"
         label="Коллекция"
         placeholder="Выберите коллекцию"
@@ -107,119 +125,118 @@ const handleUpload = (e) => {
       </div>
     </div>
 
-    <div class="mt-20">
-      <UiTitle tag="h2">Варианты товара</UiTitle>
-      <UiDivider class="mt-4 mb-10" />
+    <ButtonSubmit text="Создать товар" class="mt-4" />
+  </form>
 
-      <div class="grid gap-[100px] grid-cols-[1fr_400px]">
-        <div>
-          <div class="flex flex-col gap-12">
-            <div class="flex justify-between">
-              <p class="font-medium">Активный товар</p>
-              <FormSwitch />
-            </div>
+  <div class="mt-20" v-if="propductData">
+    <UiTitle tag="h2">Варианты товара</UiTitle>
+    <UiDivider class="mt-4 mb-10" />
 
-            <div class="flex justify-between">
-              <p class="font-medium">В наличии</p>
-              <FormSwitch />
-            </div>
-
-            <div class="flex justify-between">
-              <p class="font-medium">Новинка</p>
-              <FormSwitch />
-            </div>
-
-            <div class="flex justify-between">
-              <p class="font-medium">Подарок</p>
-              <FormSwitch />
-            </div>
+    <div class="grid gap-[100px] grid-cols-[1fr_400px]">
+      <div>
+        <div class="flex flex-col gap-12">
+          <div class="flex justify-between">
+            <p class="font-medium">Активный товар</p>
+            <FormSwitch />
           </div>
 
-          <div class="mt-14">
-            <FormInput :required="true" label="Цена" placeholder="0 BYN" />
-            <div class="mt-2 py-2 px-3 rounded-lg bg-[#F7F7F8]">Акции</div>
+          <div class="flex justify-between">
+            <p class="font-medium">В наличии</p>
+            <FormSwitch />
           </div>
 
-          <div class="mt-16">
-            <FormInput
-              :required="true"
-              label="Количество"
-              placeholder="0 BYN"
-            />
-            <div class="mt-2 py-2 px-3 rounded-lg bg-[#F7F7F8]">
-              Пока нет городов
-            </div>
+          <div class="flex justify-between">
+            <p class="font-medium">Новинка</p>
+            <FormSwitch />
           </div>
 
-          <div class="mt-16">
-            <UiTitle tag="h2">
-              Характеристики <span class="text-red">*</span>
-            </UiTitle>
-
-            <UiDivider class="mt-3" />
-
-            <div class="flex flex-col mt-6 gap-4">
-              <FormDropdown
-                placeholder="Выберите цвет"
-                label="Цвет"
-                class="w-full"
-                :list="people"
-              />
-              <FormDropdown
-                placeholder="Выберите материал"
-                label="Материал"
-                class="w-full"
-                :list="people"
-              />
-              <FormDropdown
-                placeholder="Выберите застежку"
-                label="Застежка"
-                class="w-full"
-                :list="people"
-              />
-              <FormDropdown
-                placeholder="Выберите подкладку"
-                label="Подкладка"
-                class="w-full"
-                :list="people"
-              />
-
-              <FormDropdown
-                placeholder="Выберите ремень"
-                label="Наплечный ремень"
-                class="w-full"
-                :list="people"
-              />
-            </div>
+          <div class="flex justify-between">
+            <p class="font-medium">Подарок</p>
+            <FormSwitch />
           </div>
         </div>
 
-        <div>
-          <div class="flex flex-col">
-            <UiTitle tag="h2">Обложка</UiTitle>
-            <div
-              class="w-[400px] h-[400px] mt-2 relative rounded-lg overflow-hidden"
-            >
-              <img
-                :src="coverRef"
-                alt=""
-                class="w-full h-full object-cover absolute top-0"
-              />
-            </div>
+        <div class="mt-14">
+          <FormInput :required="true" label="Цена" placeholder="0 BYN" />
+          <div class="mt-2 py-2 px-3 rounded-lg bg-[#F7F7F8]">Акции</div>
+        </div>
 
-            <input
-              type="file"
-              @change="handleUpload"
-              class="mt-2 bg-[#F7F7F8] rounded-lg cursor-pointer flex items-center justify-center"
+        <div class="mt-16">
+          <FormInput :required="true" label="Количество" placeholder="0 BYN" />
+          <div class="mt-2 py-2 px-3 rounded-lg bg-[#F7F7F8]">
+            Пока нет городов
+          </div>
+        </div>
+
+        <div class="mt-16">
+          <UiTitle tag="h2">
+            Характеристики <span class="text-red">*</span>
+          </UiTitle>
+
+          <UiDivider class="mt-3" />
+
+          <div class="flex flex-col mt-6 gap-4">
+            <FormDropdown
+              placeholder="Выберите цвет"
+              label="Цвет"
+              class="w-full"
+              :list="people"
+            />
+            <FormDropdown
+              placeholder="Выберите материал"
+              label="Материал"
+              class="w-full"
+              :list="people"
+            />
+            <FormDropdown
+              placeholder="Выберите застежку"
+              label="Застежка"
+              class="w-full"
+              :list="people"
+            />
+            <FormDropdown
+              placeholder="Выберите подкладку"
+              label="Подкладка"
+              class="w-full"
+              :list="people"
+            />
+
+            <FormDropdown
+              placeholder="Выберите ремень"
+              label="Наплечный ремень"
+              class="w-full"
+              :list="people"
             />
           </div>
         </div>
       </div>
 
-      <UiDivider class="my-10" />
-      <ButtonSubmit text="Создать товар" class="w-full" />
+      <div>
+        <div class="flex flex-col">
+          <UiTitle tag="h2">Обложка</UiTitle>
+          <div
+            class="w-[400px] h-[400px] mt-2 relative bg-[#F7F7F8] rounded-lg overflow-hidden"
+          >
+            <img
+              v-if="coverRef"
+              :src="coverRef"
+              alt=""
+              class="w-full h-full object-cover absolute top-0"
+            />
+          </div>
+
+          <input
+            type="file"
+            @change="handleUpload"
+            class="mt-2 bg-[#F7F7F8] rounded-lg cursor-pointer flex items-center justify-center"
+          />
+        </div>
+      </div>
     </div>
-  </form>
+
+    <UiDivider class="my-10" />
+    <!-- <ButtonSubmit text="Создать товар" class="w-full" /> -->
+  </div>
 </template>
 
 <style lang="scss" scoped></style>

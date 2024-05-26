@@ -4,8 +4,17 @@ import { onClickOutside } from "@vueuse/core";
 import EditSvg from "@/assets/img/icon/product/edit.svg";
 import StatSvg from "@/assets/img/icon/product/stat.svg";
 import TrashSvg from "@/assets/img/icon/product/trash.svg";
+
+const props = defineProps(["data", "refresh"]);
 const target = ref(null);
 const isOpen = ref(false);
+
+const deleteProduct = async (id) => {
+  console.log(id);
+  await useApi(`/admin/products/${id}/delete`, {
+    method: "DELETE",
+  }).then(() => props.refresh());
+};
 
 onClickOutside(target, () => (isOpen.value = false));
 </script>
@@ -16,7 +25,7 @@ onClickOutside(target, () => (isOpen.value = false));
       <FormCheckbox class="block" />
       <div class="w-12 h-12 bg-accent ml-1"></div>
       <div class="flex flex-col ml-4 w-[188px]">
-        <h3 class="font-medium leading-[24px]">Сумка HEART WINGS</h3>
+        <h3 class="font-medium leading-[24px]">{{ data.title }}</h3>
 
         <div class="text-red text-[12px]">Нет в наличии</div>
       </div>
@@ -38,7 +47,10 @@ onClickOutside(target, () => (isOpen.value = false));
       v-if="isOpen"
       class="absolute flex flex-col bg-white px-4 py-3 right-[10px] top-[68px] z-10 rounded-lg border border-border w-[280px]"
     >
-      <NuxtLink to="#" class="flex items-center leading-[24px] gap-2">
+      <NuxtLink
+        :to="`/products/${data.id}/edit`"
+        class="flex items-center leading-[24px] gap-2"
+      >
         <EditSvg />
         <span>Редактировать товар</span>
       </NuxtLink>
@@ -52,10 +64,13 @@ onClickOutside(target, () => (isOpen.value = false));
 
       <UiDivider class="my-2" />
 
-      <NuxtLink to="#" class="flex items-center text-red leading-[24px] gap-2">
+      <div
+        class="flex items-center text-red leading-[24px] gap-2 cursor-pointer"
+        @click="deleteProduct(data.id)"
+      >
         <TrashSvg />
         <span>Удалить товар</span>
-      </NuxtLink>
+      </div>
     </div>
   </div>
 </template>
