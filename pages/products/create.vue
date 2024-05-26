@@ -28,6 +28,14 @@ const storeProduct = async () => {
       router.push(`/products/${id}/edit`);
     },
   });
+  // .then(() => {
+  //   propductData.value = data;
+  // })
+  // .them(() => {
+  //   router.push(`/products/${propductData.value.id}/edit`);
+  // });
+
+  // const { data: newProduct } = await useApi("");
 };
 
 const deleteProduct = async () => {
@@ -39,16 +47,6 @@ const deleteProduct = async () => {
       is_woman: storeData.value.is_woman ? 1 : 0,
     },
   });
-};
-
-const coverRef = ref();
-
-const handleUpload = (e) => {
-  const reader = new FileReader();
-  reader.onload = (event) => {
-    coverRef.value = event.target.result;
-  };
-  reader.readAsDataURL(e.target.files[0]);
 };
 </script>
 

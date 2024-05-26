@@ -58,6 +58,16 @@ const storeProduct = async () => {
     }
   );
 };
+
+const coverRef = ref();
+
+const handleUpload = (e) => {
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    coverRef.value = event.target.result;
+  };
+  reader.readAsDataURL(e.target.files[0]);
+};
 </script>
 
 <template>
