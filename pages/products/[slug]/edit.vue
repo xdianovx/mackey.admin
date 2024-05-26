@@ -71,7 +71,7 @@ const handleUpload = (e) => {
 </script>
 
 <template>
-  <pre>{{ productRef }}</pre>
+  <!-- <pre>{{ productRef }}</pre> -->
 
   <div class="flex items-center">
     <UiTitle tag="h1">{{ data.title }}</UiTitle>
@@ -140,7 +140,6 @@ const handleUpload = (e) => {
               v-model="productRef.vendor_code"
               placeholder=""
             />
-            <div class="mt-2 py-2 px-3 rounded-lg bg-[#F7F7F8]">Акции</div>
           </div>
 
           <div class="mt-16">
