@@ -5,6 +5,8 @@ const model = defineModel();
 <template>
   <label class="flex items-center cursor-pointer">
     <input
+      :true-value="1"
+      :false-value="0"
       type="checkbox"
       :value="model"
       v-model="model"

@@ -22,7 +22,9 @@
     "nuxt-svgo-loader": "^0.4.0",
     "pinia": "^2.1.7",
     "vue": "^3.4.27",
+    "vue-multiselect": "^3.0.0-beta.3",
     "vue-router": "^4.3.2",
+    "vue3-colorpicker": "^2.3.0",
     "yup": "^1.4.0"
   },
   "devDependencies": {

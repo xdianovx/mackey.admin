@@ -2,11 +2,32 @@
 const route = useRoute();
 const router = useRouter();
 const slug = route.params.slug;
+const coverRef = ref();
+const newVariantRef = ref();
+const varCreated = ref();
 
-const { data } = await useApi(`/admin/products/${slug}/show`, {});
+const pageRef = ref();
+const productRef = ref({});
+
+const { data, refresh } = await useApi(`/admin/products/${slug}/show`, {
+  watch: [varCreated, coverRef],
+  onRequest({ request, options }) {},
+  onResponse({ response, options, error }) {
+    pageRef.value = response._data;
+  },
+});
+pageRef.value = data._rawValue;
+
 const { data: colors } = await useApi(`/admin/colors`, {});
 const { data: materials } = await useApi(`/admin/materials`, {});
 const { data: linings } = await useApi(`/admin/linings/`, {});
+
+import {
+  Listbox,
+  ListboxButton,
+  ListboxOptions,
+  ListboxOption,
+} from "@headlessui/vue";
 
 const deleteProduct = async () => {
   await useApi(`/admin/products/${slug}/show`, {
@@ -15,30 +36,66 @@ const deleteProduct = async () => {
     },
   });
 };
-const productRef = ref({
-  title_option: "Варwиант 1",
-  price: 2300,
-  product_count: 12122,
-  is_man: 1,
-  shoulder_strap_length: 12,
-  number_branches: 2,
-  weight: 200,
-  width: 100,
-  depth: 100,
-  height: 100,
-  description: "ssss",
-  meta_tag: "sss",
-  vendor_code: "200-233-232",
-  is_active: 1,
-  in_stock: 1,
-  is_new: 1,
-  is_gift: 1,
-  colors: [],
-  clasps: [],
-  linings: [],
-  materials: [],
-  shoulder_straps: [],
-});
+
+const createVariant = async () => {
+  await useApi(`/admin/products/${slug}/product_options/store_with_product`, {
+    method: "POST",
+    body: {
+      title_option: newVariantRef.value,
+    },
+  }).then(() => {
+    refresh();
+  });
+};
+
+const deleteVariant = async (id) => {
+  await useApi(`/admin/products/${slug}/product_options/${id}/delete`, {
+    method: "DELETE",
+    onResponse() {
+      refresh();
+    },
+  }).then(() => {
+    refresh();
+  });
+};
+
+const updateProduct = async (varId) => {
+  const varData = pageRef.value.product_options?.find((i) => i.id === varId);
+
+  const uploadCover = async () => {
+    const fd = new FormData();
+    fd.append("file", coverRef.value);
+
+    await useApi(
+      `/admin/products/${slug}/product_options/${varId}/product_files/store_cover`,
+      {
+        method: "POST",
+        body: fd,
+      }
+    );
+  };
+
+  uploadCover();
+
+  const { data, error } = await useApi(
+    `/admin/products/${slug}/product_options/${varId}/update?_method=PATCH`,
+    {
+      method: "POST",
+      body: {
+        ...varData,
+        is_active: varData.is_active ? 1 : 0,
+        in_stock: varData.in_stock ? 1 : 0,
+        is_new: varData.is_new ? 1 : 0,
+        is_gift: varData.is_gift ? 1 : 0,
+      },
+      // onResponse({ request, response, options }) {
+      //   router.push(`/products/all`);
+      // },
+    }
+  );
+
+  refresh();
+};
 
 const storeProduct = async () => {
   const { data, error } = await useApi(
@@ -59,19 +116,14 @@ const storeProduct = async () => {
   );
 };
 
-const coverRef = ref();
-
-const handleUpload = (e) => {
-  const reader = new FileReader();
-  reader.onload = (event) => {
-    coverRef.value = event.target.result;
-  };
-  reader.readAsDataURL(e.target.files[0]);
+const setImageUpload = (e) => {
+  console.log(e.target.files[0]);
+  coverRef.value = e.target.files[0];
 };
 </script>
 
 <template>
-  <!-- <pre>{{ productRef }}</pre> -->
+  <pre>{{ pageRef.product_options }}</pre>
 
   <div class="flex items-center">
     <UiTitle tag="h1">{{ data.title }}</UiTitle>
@@ -85,182 +137,171 @@ const handleUpload = (e) => {
     </div>
   </div>
 
-  <form action="" class="mt-10" @submit.prevent="storeProduct">
-    <div class="mt-20">
-      <UiTitle tag="h2">Варианты товара</UiTitle>
-      <UiDivider class="mt-4 mb-10" />
+  <form @submit.prevent="createVariant" class="mt-10 flex gap-2 items-end">
+    <FormInput label="Название варианта" v-model="newVariantRef" />
 
-      <div class="grid gap-[100px] grid-cols-[1fr_400px]">
-        <div>
-          <div class="flex flex-col gap-12">
-            <FormInput
-              :required="true"
-              label="Нзвание опции"
-              type="text"
-              v-model="productRef.title_option"
-              placeholder=""
-            />
-            <div class="flex justify-between">
-              <p class="font-medium">Активный товар</p>
-              <FormSwitch v-model="productRef.is_active" />
-            </div>
-
-            <div class="flex justify-between">
-              <p class="font-medium">В наличии</p>
-              <FormSwitch v-model="productRef.in_stock" />
-            </div>
-
-            <div class="flex justify-between">
-              <p class="font-medium">Новинка</p>
-              <FormSwitch v-model="productRef.is_new" />
-            </div>
-
-            <div class="flex justify-between">
-              <p class="font-medium">Подарок</p>
-              <FormSwitch v-model="productRef.is_gift" />
-            </div>
-          </div>
-
-          <div class="mt-14">
-            <FormInput
-              :required="true"
-              label="Цена"
-              type="number"
-              v-model="productRef.price"
-              placeholder="0 BYN"
-            />
-            <div class="mt-2 py-2 px-3 rounded-lg bg-[#F7F7F8]">Акции</div>
-          </div>
-
-          <div class="mt-14">
-            <FormInput
-              :required="true"
-              label="Артикул"
-              type="number"
-              v-model="productRef.vendor_code"
-              placeholder=""
-            />
-          </div>
-
-          <div class="mt-16">
-            <FormInput
-              type="number"
-              :required="true"
-              label="Количество"
-              placeholder="0 BYN"
-              v-model="productRef.product_count"
-            />
-            <div class="mt-2 py-2 px-3 rounded-lg bg-[#F7F7F8]">
-              Пока нет городов
-            </div>
-          </div>
-
-          <div class="mt-16">
-            <UiTitle tag="h2">
-              Характеристики <span class="text-red">*</span>
-            </UiTitle>
-
-            <div class="mt-6 flex flex-col gap-2">
-              <FormInput
-                type="number"
-                label="Описание"
-                v-model="productRef.description"
-              />
-            </div>
-
-            <div class="mt-6 flex flex-col gap-2">
-              <FormInput
-                type="number"
-                label="Ширина"
-                placeholder="0 BYN"
-                v-model="productRef.width"
-              />
-
-              <FormInput
-                type="number"
-                label="Глубина"
-                placeholder="0 BYN"
-                v-model="productRef.depth"
-              />
-              <FormInput
-                type="number"
-                label="Высота"
-                placeholder="0 BYN"
-                v-model="productRef.height"
-              />
-              <FormInput
-                type="number"
-                label="Вес"
-                placeholder="0 BYN"
-                v-model="productRef.weight"
-              />
-            </div>
-
-            <UiDivider class="mt-3" />
-
-            <div class="flex flex-col mt-6 gap-4">
-              <FormDropdown
-                placeholder="Выберите цвет"
-                label="Цвет"
-                class="w-full"
-                :list="colors"
-              />
-              <FormDropdown
-                placeholder="Выберите материал"
-                label="Материал"
-                class="w-full"
-                :list="materials"
-              />
-              <!-- <FormDropdown
-                placeholder="Выберите застежку"
-                label="Застежка"
-                class="w-full"
-                :list="people"
-              /> -->
-              <FormDropdown
-                placeholder="Выберите подкладку"
-                label="Подкладка"
-                class="w-full"
-                :list="linings"
-              />
-
-              <!-- <FormDropdown
-                placeholder="Выберите ремень"
-                label="Наплечный ремень"
-                class="w-full"
-                :list="people"
-              /> -->
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <div class="flex flex-col">
-            <UiTitle tag="h2">Обложка</UiTitle>
-            <div
-              class="w-[400px] h-[400px] mt-2 relative bg-[#F7F7F8] rounded-lg overflow-hidden"
-            >
-              <img
-                v-if="coverRef"
-                :src="coverRef"
-                alt=""
-                class="w-full h-full object-cover absolute top-0"
-              />
-            </div>
-
-            <input
-              type="file"
-              @change="handleUpload"
-              class="mt-2 bg-[#F7F7F8] rounded-lg cursor-pointer flex items-center justify-center"
-            />
-          </div>
-        </div>
-      </div>
-
-      <UiDivider class="my-10" />
-      <ButtonSubmit text="Создать товар" class="w-full" />
-    </div>
+    <button
+      type="submit"
+      :class="newVariantRef ? 'bg-accent' : 'bg-gray pointer-events-none'"
+      class="py-2 px-4 grow shrink-0 rounded-lg text-white"
+    >
+      Добавить вариант
+    </button>
   </form>
 
-  <div class="mt-20"></div>
+  <!--  -->
+  <div class="mt-20 flex flex-col">
+    <UiTitle tag="h1">Варианты товара</UiTitle>
+    <div class="flex flex-col gap-20 mt-20">
+      <div class="" v-for="variant in data.product_options" :key="variant.id">
+        <div class="flex items-center justify-between">
+          <UiTitle tag="h1">{{ variant.title_option }}</UiTitle>
+          <button
+            class="py-2 px-4 border border-red text-red rounded-lg"
+            @click="deleteVariant(variant.id)"
+          >
+            Удалить вариант
+          </button>
+        </div>
+
+        <UiDivider class="mt-20" />
+
+        <div class="mt-10">
+          <form @submit.prevent="updateProduct(variant.id)">
+            <div class="grid gap-[100px] grid-cols-[1fr_400px]">
+              <div>
+                <div class="flex flex-col gap-4">
+                  <FormInput
+                    :required="true"
+                    label="Нaзвание варианта"
+                    type="text"
+                    v-model="variant.title_option"
+                    placeholder=""
+                  />
+                  <FormInput
+                    :required="true"
+                    label="Описание"
+                    type="text"
+                    v-model="variant.description"
+                    placeholder=""
+                  />
+                  <FormInput
+                    :required="true"
+                    label="Цена"
+                    type="number"
+                    v-model="variant.price"
+                    placeholder=""
+                  />
+                  <FormInput
+                    :required="true"
+                    label="Количество"
+                    type="number"
+                    v-model="variant.product_count"
+                    placeholder=""
+                  />
+                  <FormInput
+                    :required="true"
+                    label="Артикул"
+                    type="text"
+                    :value="variant.vendor_code"
+                    v-model="variant.vendor_code"
+                    placeholder=""
+                  />
+
+                  <FormInput
+                    :required="true"
+                    label="Вес"
+                    type="text"
+                    v-model="variant.weight"
+                    placeholder=""
+                  />
+
+                  <FormInput
+                    :required="true"
+                    label="Ширина"
+                    type="text"
+                    v-model="variant.width"
+                    placeholder=""
+                  />
+
+                  <FormInput
+                    :required="true"
+                    label="Высота"
+                    type="text"
+                    v-model="variant.height"
+                    placeholder=""
+                  />
+
+                  <FormInput
+                    :required="true"
+                    label="Глубина"
+                    type="text"
+                    v-model="variant.depth"
+                    placeholder=""
+                  />
+
+                  <Listbox v-model="variant.colors" multiple>
+                    <ListboxButton>
+                      Цвет
+                      {{ colors.map((item) => item.title).join(", ") }}
+                    </ListboxButton>
+                    <ListboxOptions>
+                      <ListboxOption
+                        v-for="item in colors"
+                        :key="item.id"
+                        :value="item.slug"
+                      >
+                        {{ item.title }}
+                      </ListboxOption>
+                    </ListboxOptions>
+                  </Listbox>
+
+                  <div class="flex justify-between mt-4">
+                    <p class="font-medium">Активный товар</p>
+                    <FormSwitch v-model="variant.is_active" />
+                  </div>
+
+                  <div class="flex justify-between">
+                    <p class="font-medium">В наличии</p>
+                    <FormSwitch v-model="variant.in_stock" />
+                  </div>
+
+                  <div class="flex justify-between">
+                    <p class="font-medium">Новинка</p>
+                    <FormSwitch v-model="variant.is_new" />
+                  </div>
+
+                  <div class="flex justify-between">
+                    <p class="font-medium">Подарок</p>
+                    <FormSwitch v-model="variant.is_gift" />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div
+                  class="w-[400px] h-[400px] bg-slate-300 rounded-lg cursor-pointer overflow-hidden"
+                >
+                  <img
+                    :src="variant.product_files[0]?.file"
+                    class="w-full h-full object-cover block"
+                  />
+                </div>
+                <input type="file" @change="setImageUpload" />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              class="bg-accent py-2 px-4 mt-8 rounded-lg text-white w-full"
+            >
+              Сохранить
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--  -->
 </template>

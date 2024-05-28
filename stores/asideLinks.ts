@@ -68,6 +68,13 @@ export const useAsideLinksStore = defineStore("myAsideLinksStore", () => {
               slug: "/products/collections",
               links: [],
             },
+            {
+              id: 4,
+              title: "Цвета",
+              icon: PhoneSvg,
+              slug: "/products/colors",
+              links: [],
+            },
           ],
         },
       ],

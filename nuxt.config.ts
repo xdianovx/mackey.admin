@@ -43,6 +43,9 @@ export default defineNuxtConfig({
       isEnabled: true,
     },
   },
+  build: {
+    transpile: ["vue3-colorpicker"],
+  },
   // nitro: {
   //   devServer: {
   //     watch: ["./components", "./pages"],
