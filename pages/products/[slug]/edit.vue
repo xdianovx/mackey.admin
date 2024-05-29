@@ -38,7 +38,7 @@ const deleteProduct = async () => {
 };
 
 const createVariant = async () => {
-  await useApi(`/admin/products/${slug}/product_options/store_with_product`, {
+  await useApi(`/admin/products/${slug}/product_options/store`, {
     method: "POST",
     body: {
       title_option: newVariantRef.value,
