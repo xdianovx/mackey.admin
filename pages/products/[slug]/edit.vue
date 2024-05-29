@@ -123,7 +123,7 @@ const setImageUpload = (e) => {
 </script>
 
 <template>
-  <pre>{{ pageRef.product_options }}</pre>
+  <!-- <pre>{{ pageRef.product_options }}</pre> -->
 
   <div class="flex items-center">
     <UiTitle tag="h1">{{ data.title }}</UiTitle>
@@ -240,13 +240,16 @@ const setImageUpload = (e) => {
                     placeholder=""
                   />
 
+                  <b>Выбранные цвета</b>
                   <Listbox v-model="variant.colors" multiple>
-                    <ListboxButton>
-                      Цвет
-                      {{ colors.map((item) => item.title).join(", ") }}
+                    <ListboxButton
+                      class="flex py-2 px-3 rounded-lg border border-border"
+                    >
+                      {{ variant.colors.map((item) => item).join(", ") }}
                     </ListboxButton>
-                    <ListboxOptions>
+                    <ListboxOptions class="flex flex-col gap-2">
                       <ListboxOption
+                        class="cursor-pointer"
                         v-for="item in colors"
                         :key="item.id"
                         :value="item.slug"
