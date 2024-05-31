@@ -5,6 +5,7 @@ import EditSvg from "@/assets/img/icon/product/edit.svg";
 import StatSvg from "@/assets/img/icon/product/stat.svg";
 import TrashSvg from "@/assets/img/icon/product/trash.svg";
 
+const { data: colors } = await useApi("/admin/colors/", {});
 const props = defineProps(["data", "refresh"]);
 const target = ref(null);
 const isOpen = ref(false);
@@ -20,19 +21,15 @@ onClickOutside(target, () => (isOpen.value = false));
 </script>
 
 <template>
-  <div class="relative">
+  <div class="relative rounded-[20px] border border-border p bg-white">
     <div class="py-3 px-4 flex items-center">
       <FormCheckbox class="block" />
-      <div class="w-12 h-12 bg-accent ml-1"></div>
-      <div class="flex flex-col ml-4 w-[188px]">
-        <h3 class="font-medium leading-[24px]">{{ data.title }}</h3>
 
-        <div class="text-red text-[12px]">Нет в наличии</div>
+      <!-- <div class="w-12 h-12 bg-accent ml-2 rounded-md">{}</div> -->
+      <div class="flex flex-col ml-4 w-[188px]">
+        <h3 class="font-medium leading-[24px] text-[20px]">{{ data.title }}</h3>
       </div>
-      <div class="w-[86px] text-center">Черный</div>
-      <div class="w-[86px] text-center">114-12-124</div>
-      <div class="w-[86px] text-center">56 шт</div>
-      <div class="w-[86px] text-center">190 BYN</div>
+
       <div class="ml-auto">
         <button
           @click="isOpen = !isOpen"
@@ -70,6 +67,44 @@ onClickOutside(target, () => (isOpen.value = false));
       >
         <TrashSvg />
         <span>Удалить товар</span>
+      </div>
+    </div>
+    <div class="p-4 flex flex-col gap-2">
+      <div class="flex items-center gap-4" v-for="list in data.product_options">
+        <div class="w-16 h-16 rounded-md overflow-hidden">
+          <img
+            v-if="list.product_files[0]?.file"
+            :src="list.product_files[0]?.file"
+            alt=""
+            class="w-full h-full object-cover"
+          />
+          <div class="w-16 h-16 bg-neutral-200 rounded-md" v-else></div>
+        </div>
+        <div class="text-[16px] font-medium w-[120px] mr-2">
+          {{ list.title_option }}
+        </div>
+
+        <div class="w-[80px]">{{ list.product_count }} шт.</div>
+
+        <div class="w-[120px]">{{ list.vendor_code }}</div>
+
+        <div class="flex gap-2 w-[120px]">
+          <div class="" v-for="item in list.colors">
+            <div
+              class="w-4 h-4 rounded-full"
+              :style="[{ background: colors.find((i) => i.slug == item).code }]"
+            ></div>
+          </div>
+        </div>
+
+        <div class="text-red text-[12px]" v-if="list.product_count > 0">
+          Нет в наличии
+        </div>
+        <div class="text-green text-[12px]" v-else>В наличии</div>
+
+        <div class="text-[16px] ml-auto" v-if="list.price">
+          {{ list.price }} BYN
+        </div>
       </div>
     </div>
   </div>

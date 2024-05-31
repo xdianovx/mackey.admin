@@ -1,27 +1,4 @@
 <script setup>
-const route = useRoute();
-const router = useRouter();
-const slug = route.params.slug;
-const coverRef = ref();
-const newVariantRef = ref();
-const varCreated = ref();
-
-const pageRef = ref();
-const productRef = ref({});
-
-const { data, refresh } = await useApi(`/admin/products/${slug}/show`, {
-  watch: [varCreated, coverRef],
-  onRequest({ request, options }) {},
-  onResponse({ response, options, error }) {
-    pageRef.value = response._data;
-  },
-});
-pageRef.value = data._rawValue;
-
-const { data: colors } = await useApi(`/admin/colors`, {});
-const { data: materials } = await useApi(`/admin/materials`, {});
-const { data: linings } = await useApi(`/admin/linings/`, {});
-
 import {
   Listbox,
   ListboxButton,
@@ -29,9 +6,35 @@ import {
   ListboxOption,
 } from "@headlessui/vue";
 
+const route = useRoute();
+const router = useRouter();
+const slug = route.params.slug;
+
+const coverRef = ref();
+const newVariantRef = ref();
+const varCreated = ref();
+const pageRef = ref();
+const productRef = ref({});
+
+
+const {data, refresh} = await useApi(`/admin/products/${slug}/show`, {
+  watch: [varCreated, coverRef],
+  onRequest({request, options}) {
+  },
+  onResponse({response, options, error}) {
+    pageRef.value = response._data;
+  },
+});
+pageRef.value = data._rawValue;
+
+const {data: colors} = await useApi(`/admin/colors`, {});
+const {data: materials} = await useApi(`/admin/materials`, {});
+const {data: linings} = await useApi(`/admin/linings/`, {});
+
+
 const deleteProduct = async () => {
   await useApi(`/admin/products/${slug}/show`, {
-    onResponse({ request, response, options }) {
+    onResponse({request, response, options}) {
       router.push(`/products/all`);
     },
   });
@@ -64,73 +67,104 @@ const updateProduct = async (varId) => {
 
   const uploadCover = async () => {
     const fd = new FormData();
-    fd.append("file", coverRef.value);
+
+    // fd.append("file", coverRef.value);
+
+    for (let i = 0; i < coverRef.value?.length; i++) {
+      fd.append(`files[]`, coverRef.value[i]);
+    }
+
+    fd.append(`files[]`, coverRef.value);
 
     await useApi(
-      `/admin/products/${slug}/product_options/${varId}/product_files/store_cover`,
-      {
-        method: "POST",
-        body: fd,
-      }
+        `/admin/products/${slug}/product_options/${varId}/product_files/store`,
+        {
+          method: "POST",
+          body: fd,
+        }
     );
+
+    refresh();
+
   };
 
   uploadCover();
 
-  const { data, error } = await useApi(
-    `/admin/products/${slug}/product_options/${varId}/update?_method=PATCH`,
-    {
-      method: "POST",
-      body: {
-        ...varData,
-        is_active: varData.is_active ? 1 : 0,
-        in_stock: varData.in_stock ? 1 : 0,
-        is_new: varData.is_new ? 1 : 0,
-        is_gift: varData.is_gift ? 1 : 0,
-      },
-      // onResponse({ request, response, options }) {
-      //   router.push(`/products/all`);
-      // },
-    }
+  const {data, error} = await useApi(
+      `/admin/products/${slug}/product_options/${varId}/update?_method=PATCH`,
+      {
+        method: "POST",
+        body: {
+          ...varData,
+          is_active: varData.is_active ? 1 : 0,
+          in_stock: varData.in_stock ? 1 : 0,
+          is_new: varData.is_new ? 1 : 0,
+          is_gift: varData.is_gift ? 1 : 0,
+        },
+      }
   );
 
   refresh();
 };
 
-const storeProduct = async () => {
-  const { data, error } = await useApi(
-    `/admin/products/${slug}/product_options/store`,
-    {
-      method: "POST",
-      body: {
-        ...productRef.value,
-        is_active: productRef.value.is_active ? 1 : 0,
-        in_stock: productRef.value.in_stock ? 1 : 0,
-        is_new: productRef.value.is_new ? 1 : 0,
-        is_gift: productRef.value.is_gift ? 1 : 0,
-      },
-      onResponse({ request, response, options }) {
-        router.push(`/products/all`);
-      },
+const changeImageCover = async (productId, optionId, imageId) => {
+  await useApi(`/admin/products/${productId}/product_options/${optionId}/product_files/${imageId}/assign_cover?_method=PATCH`, {
+    method: "POST",
+    body: {
+      is_cover: 1
     }
+
+  })
+  refresh();
+
+}
+
+const  deleteImage = async (productId, optionId, imageId) => {
+  await useApi(`/admin/products/${productId}/product_options/${optionId}/product_files/${imageId}/delete`, {
+    method: "DELETE",
+  })
+  refresh();
+}
+
+const storeProduct = async () => {
+  const {data, error} = await useApi(
+      `/admin/products/${slug}/product_options/store`,
+      {
+        method: "POST",
+        body: {
+          ...productRef.value,
+          is_active: productRef.value.is_active ? 1 : 0,
+          in_stock: productRef.value.in_stock ? 1 : 0,
+          is_new: productRef.value.is_new ? 1 : 0,
+          is_gift: productRef.value.is_gift ? 1 : 0,
+        },
+        onResponse({request, response, options}) {
+          router.push(`/products/all`);
+        },
+      }
   );
 };
 
 const setImageUpload = (e) => {
-  console.log(e.target.files[0]);
-  coverRef.value = e.target.files[0];
+  coverRef.value = e.target.files;
 };
+
+
+const uploadMultiImage = (e) => {
+  const files = e.target.files;
+  console.log(files)
+}
 </script>
 
 <template>
-  <!-- <pre>{{ pageRef.product_options }}</pre> -->
+  <!--  <pre>{{ pageRef.product_options }}</pre>-->
 
   <div class="flex items-center">
     <UiTitle tag="h1">{{ data.title }}</UiTitle>
     <div class="ml-auto">
       <button
-        @click="deleteProduct"
-        class="py-2 px-4 rounded-lg border border-red text-red"
+          @click="deleteProduct"
+          class="py-2 px-4 rounded-lg border border-red text-red"
       >
         Удалить
       </button>
@@ -138,12 +172,12 @@ const setImageUpload = (e) => {
   </div>
 
   <form @submit.prevent="createVariant" class="mt-10 flex gap-2 items-end">
-    <FormInput label="Название варианта" v-model="newVariantRef" />
+    <FormInput label="Название варианта" v-model="newVariantRef"/>
 
     <button
-      type="submit"
-      :class="newVariantRef ? 'bg-accent' : 'bg-gray pointer-events-none'"
-      class="py-2 px-4 grow shrink-0 rounded-lg text-white"
+        type="submit"
+        :class="newVariantRef ? 'bg-accent' : 'bg-gray pointer-events-none'"
+        class="py-2 px-4 grow shrink-0 rounded-lg text-white"
     >
       Добавить вариант
     </button>
@@ -157,14 +191,14 @@ const setImageUpload = (e) => {
         <div class="flex items-center justify-between">
           <UiTitle tag="h1">{{ variant.title_option }}</UiTitle>
           <button
-            class="py-2 px-4 border border-red text-red rounded-lg"
-            @click="deleteVariant(variant.id)"
+              class="py-2 px-4 border border-red text-red rounded-lg"
+              @click="deleteVariant(variant.id)"
           >
             Удалить вариант
           </button>
         </div>
 
-        <UiDivider class="mt-20" />
+        <UiDivider class="mt-20"/>
 
         <div class="mt-10">
           <form @submit.prevent="updateProduct(variant.id)">
@@ -172,87 +206,87 @@ const setImageUpload = (e) => {
               <div>
                 <div class="flex flex-col gap-4">
                   <FormInput
-                    :required="true"
-                    label="Нaзвание варианта"
-                    type="text"
-                    v-model="variant.title_option"
-                    placeholder=""
+                      :required="true"
+                      label="Нaзвание варианта"
+                      type="text"
+                      v-model="variant.title_option"
+                      placeholder=""
                   />
                   <FormInput
-                    :required="true"
-                    label="Описание"
-                    type="text"
-                    v-model="variant.description"
-                    placeholder=""
+                      :required="true"
+                      label="Описание"
+                      type="text"
+                      v-model="variant.description"
+                      placeholder=""
                   />
                   <FormInput
-                    :required="true"
-                    label="Цена"
-                    type="number"
-                    v-model="variant.price"
-                    placeholder=""
+                      :required="true"
+                      label="Цена"
+                      type="number"
+                      v-model="variant.price"
+                      placeholder=""
                   />
                   <FormInput
-                    :required="true"
-                    label="Количество"
-                    type="number"
-                    v-model="variant.product_count"
-                    placeholder=""
+                      :required="true"
+                      label="Количество"
+                      type="number"
+                      v-model="variant.product_count"
+                      placeholder=""
                   />
                   <FormInput
-                    :required="true"
-                    label="Артикул"
-                    type="text"
-                    :value="variant.vendor_code"
-                    v-model="variant.vendor_code"
-                    placeholder=""
-                  />
-
-                  <FormInput
-                    :required="true"
-                    label="Вес"
-                    type="text"
-                    v-model="variant.weight"
-                    placeholder=""
+                      :required="true"
+                      label="Артикул"
+                      type="text"
+                      :value="variant.vendor_code"
+                      v-model="variant.vendor_code"
+                      placeholder=""
                   />
 
                   <FormInput
-                    :required="true"
-                    label="Ширина"
-                    type="text"
-                    v-model="variant.width"
-                    placeholder=""
+                      :required="true"
+                      label="Вес"
+                      type="text"
+                      v-model="variant.weight"
+                      placeholder=""
                   />
 
                   <FormInput
-                    :required="true"
-                    label="Высота"
-                    type="text"
-                    v-model="variant.height"
-                    placeholder=""
+                      :required="true"
+                      label="Ширина"
+                      type="text"
+                      v-model="variant.width"
+                      placeholder=""
                   />
 
                   <FormInput
-                    :required="true"
-                    label="Глубина"
-                    type="text"
-                    v-model="variant.depth"
-                    placeholder=""
+                      :required="true"
+                      label="Высота"
+                      type="text"
+                      v-model="variant.height"
+                      placeholder=""
+                  />
+
+                  <FormInput
+                      :required="true"
+                      label="Глубина"
+                      type="text"
+                      v-model="variant.depth"
+                      placeholder=""
                   />
 
                   <b>Выбранные цвета</b>
                   <Listbox v-model="variant.colors" multiple>
                     <ListboxButton
-                      class="flex py-2 px-3 rounded-lg border border-border"
+                        class="flex py-2 px-3 rounded-lg border border-border"
                     >
                       {{ variant.colors.map((item) => item).join(", ") }}
                     </ListboxButton>
                     <ListboxOptions class="flex flex-col gap-2">
                       <ListboxOption
-                        class="cursor-pointer"
-                        v-for="item in colors"
-                        :key="item.id"
-                        :value="item.slug"
+                          class="cursor-pointer"
+                          v-for="item in colors"
+                          :key="item.id"
+                          :value="item.slug"
                       >
                         {{ item.title }}
                       </ListboxOption>
@@ -261,42 +295,75 @@ const setImageUpload = (e) => {
 
                   <div class="flex justify-between mt-4">
                     <p class="font-medium">Активный товар</p>
-                    <FormSwitch v-model="variant.is_active" />
+                    <FormSwitch v-model="variant.is_active"/>
                   </div>
 
                   <div class="flex justify-between">
                     <p class="font-medium">В наличии</p>
-                    <FormSwitch v-model="variant.in_stock" />
+                    <FormSwitch v-model="variant.in_stock"/>
                   </div>
 
                   <div class="flex justify-between">
                     <p class="font-medium">Новинка</p>
-                    <FormSwitch v-model="variant.is_new" />
+                    <FormSwitch v-model="variant.is_new"/>
                   </div>
 
                   <div class="flex justify-between">
                     <p class="font-medium">Подарок</p>
-                    <FormSwitch v-model="variant.is_gift" />
+                    <FormSwitch v-model="variant.is_gift"/>
                   </div>
                 </div>
               </div>
 
               <div>
+
                 <div
-                  class="w-[400px] h-[400px] bg-slate-300 rounded-lg cursor-pointer overflow-hidden"
+                    class="w-[400px] flex flex-col gap-4  cursor-pointer overflow-hidden"
                 >
-                  <img
-                    :src="variant.product_files[0]?.file"
-                    class="w-full h-full object-cover block"
-                  />
+
+                  <div class="w-[400px] "
+                       :key="image.id"
+                       v-for="image in variant.product_files"
+                  >
+
+                    <img
+                        alt="Картиночка"
+                        :src="image.file"
+                        class="w-full aspect-square h-full rounded-lg object-cover block"
+                    />
+
+
+
+                    <div class="flex mt-2 gap-2">
+                      <button
+                          v-if="!image.is_cover"
+                          @click="changeImageCover(data.id, variant.id, image.id)"
+                          class="text-white bg-black py-2 leading-[100%] px-2 rounded-md"
+                      >
+                        Сделать обложкой
+                      </button>
+                      <div v-else class="text-white bg-black py-2 leading-[100%] px-2 rounded-md">Обложка</div>
+
+                      <button
+
+                          @click="deleteImage(data.id, variant.id, image.id)"
+                          class="text-white bg-red py-2 leading-[100%] px-2 rounded-md"
+                      >
+                       Удалить
+                      </button>
+                    </div>
+
+                  </div>
                 </div>
-                <input type="file" @change="setImageUpload" />
+                <input type="file" class="mt-10 bg-black w-full" multiple @change="setImageUpload"/>
+
               </div>
+
             </div>
 
             <button
-              type="submit"
-              class="bg-accent py-2 px-4 mt-8 rounded-lg text-white w-full"
+                type="submit"
+                class="bg-accent py-2 px-4 mt-8 rounded-lg text-white w-full"
             >
               Сохранить
             </button>
@@ -305,6 +372,8 @@ const setImageUpload = (e) => {
       </div>
     </div>
   </div>
+
+  <div class="mt-56"></div>
 
   <!--  -->
 </template>
