@@ -11,6 +11,7 @@ const model = defineModel();
     <input
       :type="type"
       v-model="model"
+      :required="required"
       :placeholder="placeholder"
       class="border border-border py-2 px-4 rounded-lg w-full"
     />

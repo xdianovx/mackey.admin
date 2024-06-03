@@ -1,16 +1,14 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  css: ["@/assets/styles/main.scss"],
+  ssr: false,
+  css: ["~/assets/styles/main.scss"],
   modules: [
     "@pinia/nuxt",
     "nuxt-svgo-loader",
     "@sidebase/nuxt-auth",
     "@vee-validate/nuxt",
   ],
-  veeValidate: {
-    autoImports: true,
-  },
   postcss: {
     plugins: {
       tailwindcss: {},
@@ -35,20 +33,9 @@ export default defineNuxtConfig({
         login: "/login",
       },
     },
-    // session: {
-    //   enableRefreshOnWindowFocus: true,
-    //   enableRefreshPeriodically: 5000,
-    // },
+
     globalAppMiddleware: {
       isEnabled: true,
     },
   },
-  build: {
-    transpile: ["vue3-colorpicker"],
-  },
-  // nitro: {
-  //   devServer: {
-  //     watch: ["./components", "./pages"],
-  //   },
-  // },
 });

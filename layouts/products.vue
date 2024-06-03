@@ -1,6 +1,4 @@
 <template>
-  <NuxtLoadingIndicator />
-
   <div class="min-h-screen flex flex-col">
     <Header />
     <div class="grid grid-cols-[380px_1fr_280px] grow">

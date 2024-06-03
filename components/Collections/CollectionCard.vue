@@ -1,7 +1,10 @@
 <template>
   <div class="mb-10">
     <div class="flex items-center">
-      <h2 class="text-[16px] font-medium">{{ data.title }}</h2>
+      <h2 class="text-[16px] font-medium">
+        <NuxtLink :to="`colections/${data.slug}`">{{ data.title }}</NuxtLink>
+      </h2>
+      <div class="ml-4">Товаров: {{ data.products_count }}</div>
       <div class="ml-auto">
         <Menu as="div" class="relative inline-block text-left">
           <MenuButton
@@ -23,7 +26,7 @@
             leave-to-class="transform scale-95 opacity-0"
           >
             <MenuItems
-              class="absolute right-0 mt-2 w-56 p-10 border border-border rounded-md bg-white"
+              class="absolute right-0 mt-2 w-56 p-2 border border-border rounded-md bg-white"
             >
               <MenuItem v-slot="{ active }">
                 <button

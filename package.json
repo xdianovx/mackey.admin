@@ -15,6 +15,7 @@
     "@pinia/nuxt": "^0.5.1",
     "@sidebase/nuxt-auth": "^0.7.2",
     "@vee-validate/nuxt": "^4.12.8",
+    "@vee-validate/yup": "^4.12.8",
     "@vue-hero-icons/outline": "^1.7.2",
     "@vue-hero-icons/solid": "^1.7.2",
     "@vueuse/core": "^10.9.0",

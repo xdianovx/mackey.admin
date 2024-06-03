@@ -1,5 +1,11 @@
 <script setup>
-const data = ref();
+const data = ref({
+  is_active: 1,
+  link: "google",
+  is_active_text: "",
+  up_text: "Up Text",
+  down_text: "Up Text",
+});
 </script>
 
 <template>
