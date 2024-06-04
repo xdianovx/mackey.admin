@@ -28,6 +28,7 @@ getProducts();
         v-for="item in products"
         :key="item.id"
         :data="item"
+        :refresh="getProducts"
       />
     </div>
   </section>

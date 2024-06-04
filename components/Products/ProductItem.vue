@@ -11,7 +11,6 @@ const target = ref(null);
 const isOpen = ref(false);
 
 const deleteProduct = async (id) => {
-  console.log(id);
   await useApi(`/admin/products/${id}/delete`, {
     method: "DELETE",
   }).then(() => props.refresh());
@@ -25,8 +24,7 @@ onClickOutside(target, () => (isOpen.value = false));
     <div class="py-3 px-4 flex items-center">
       <FormCheckbox class="block" />
 
-      <!-- <div class="w-12 h-12 bg-accent ml-2 rounded-md">{}</div> -->
-      <div class="flex flex-col ml-4 w-[188px]">
+      <div class="flex flex-col ml-4">
         <h3 class="font-medium leading-[24px] text-[20px]">{{ data.title }}</h3>
       </div>
 
@@ -80,7 +78,7 @@ onClickOutside(target, () => (isOpen.value = false));
           />
           <div class="w-16 h-16 bg-neutral-200 rounded-md" v-else></div>
         </div>
-        <div class="text-[16px] font-medium w-[120px] mr-2">
+        <div class="text-[16px] font-medium w-[320px] mr-2">
           {{ list.title_option }}
         </div>
 
@@ -97,7 +95,10 @@ onClickOutside(target, () => (isOpen.value = false));
           </div>
         </div>
 
-        <div class="text-red text-[12px]" v-if="list.product_count > 0">
+        <div
+          class="text-red text-[12px] shrink-0"
+          v-if="list.product_count <= 0"
+        >
           Нет в наличии
         </div>
         <div class="text-green text-[12px]" v-else>В наличии</div>
