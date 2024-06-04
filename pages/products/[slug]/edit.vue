@@ -18,7 +18,7 @@ const productRef = ref({});
 const newImageArray = ref([]);
 
 const { data, refresh } = await useApi(`/admin/products/${slug}/show`, {
-  watch: [varCreated, coverRef],
+  watch: [varCreated],
   onRequest({ request, options }) {},
   onResponse({ response, options, error }) {
     pageRef.value = response._data;
@@ -165,8 +165,6 @@ const uploadMultiImage = (e) => {
 </script>
 
 <template>
-  <!--  <pre>{{ pageRef.product_options }}</pre>-->
-
   <div class="flex items-center">
     <UiTitle tag="h1">{{ data.title }}</UiTitle>
     <div class="ml-auto">
@@ -276,7 +274,7 @@ const uploadMultiImage = (e) => {
 
                   <FormInput
                     :required="true"
-                    label="Глубина"
+                    label="Длина"
                     type="text"
                     v-model="variant.depth"
                     placeholder=""
@@ -381,7 +379,7 @@ const uploadMultiImage = (e) => {
                   type="file"
                   class="mt-10 bg-black w-full"
                   multiple
-                  @change="uploadMultiImage"
+                  @change.prevent="uploadMultiImage"
                 />
                 <!-- <input
                   type="file"
