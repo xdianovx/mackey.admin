@@ -114,7 +114,9 @@ const changeImageCover = async (productId, optionId, imageId) => {
       },
     }
   );
-  refresh();
+
+  console.log(productId, optionId, imageId);
+  // refresh();
 };
 
 const deleteImage = async (productId, optionId, imageId) => {
@@ -339,6 +341,7 @@ const uploadMultiImage = (e) => {
                     />
 
                     <div class="flex mt-2 gap-2">
+                      <!-- {{ data.id }} {{ variant.id }} {{ image.id }} -->
                       <button
                         v-if="!image.is_cover"
                         @click="changeImageCover(data.id, variant.id, image.id)"
