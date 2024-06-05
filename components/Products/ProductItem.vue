@@ -5,8 +5,7 @@ import EditSvg from "@/assets/img/icon/product/edit.svg";
 import StatSvg from "@/assets/img/icon/product/stat.svg";
 import TrashSvg from "@/assets/img/icon/product/trash.svg";
 
-const { data: colors } = await useApi("/admin/colors/", {});
-const props = defineProps(["data", "refresh"]);
+const props = defineProps(["data", "refresh", "colors"]);
 const target = ref(null);
 const isOpen = ref(false);
 

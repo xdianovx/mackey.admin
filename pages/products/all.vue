@@ -5,6 +5,9 @@ definePageMeta({
 
 const { all: getProducts } = useProductsStore();
 const { products, isLoading } = storeToRefs(useProductsStore());
+
+const { data: colors } = await useApi("/admin/colors/", {});
+
 getProducts();
 </script>
 
@@ -28,6 +31,7 @@ getProducts();
         v-for="item in products"
         :key="item.id"
         :data="item"
+        :colors="colors"
         :refresh="getProducts"
       />
     </div>
