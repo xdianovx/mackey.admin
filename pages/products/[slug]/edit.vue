@@ -115,7 +115,7 @@ const changeImageCover = async (productId, optionId, imageId) => {
     }
   );
 
-  console.log(productId, optionId, imageId);
+  console.log(newImageArray);
   // refresh();
 };
 
@@ -155,6 +155,7 @@ const storeProduct = async () => {
 const uploadMultiImage = (e) => {
   const files = e.target.files;
   coverRef.value = e.target.files;
+
   for (let i = 0; i < files.length; i++) {
     const reader = new FileReader();
     reader.onload = function (event) {
@@ -163,6 +164,8 @@ const uploadMultiImage = (e) => {
     };
     reader.readAsDataURL(files[i]);
   }
+
+  console.log(newImageArray.value);
 };
 </script>
 
@@ -337,8 +340,13 @@ const uploadMultiImage = (e) => {
                     <img
                       alt="Картиночка"
                       :src="image.file"
+                      v-if="useGetFileExt(image.file) === 'webp'"
                       class="w-full aspect-square h-full rounded-lg object-cover block"
                     />
+
+                    <video v-else muted playsinline="true" loop autoplay>
+                      <source :src="image.file" type="video/mp4" />
+                    </video>
 
                     <div class="flex mt-2 gap-2">
                       <!-- {{ data.id }} {{ variant.id }} {{ image.id }} -->
@@ -368,14 +376,14 @@ const uploadMultiImage = (e) => {
 
                 <div class="flex flex-col gap-4">
                   <div
-                    class="w-full rounded-lg h-[400px] overflow-hidden"
+                    class="w-full rounded-lg h-auto overflow-hidden"
                     v-for="img in newImageArray"
                   >
-                    <img
-                      :src="img"
-                      class="block w-full object-cover h-full"
-                      alt="12"
-                    />
+                    <img :src="img" class="block w-full object-cover h-full" />
+
+                    <video autoplay loop muted playsinline="true">
+                      <source :src="img" type="" />
+                    </video>
                   </div>
                 </div>
                 <input
