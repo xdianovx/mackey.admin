@@ -9,8 +9,8 @@ const props = defineProps(["data", "refresh", "colors"]);
 const target = ref(null);
 const isOpen = ref(false);
 
-const deleteProduct = async (id) => {
-  await useApi(`/admin/products/${id}/delete`, {
+const deleteProduct = async (slug) => {
+  await useApi(`/admin/products/${slug}/delete`, {
     method: "DELETE",
   }).then(() => props.refresh());
 };
@@ -42,7 +42,7 @@ onClickOutside(target, () => (isOpen.value = false));
       class="absolute flex flex-col bg-white px-4 py-3 right-[10px] top-[68px] z-10 rounded-lg border border-border w-[280px]"
     >
       <NuxtLink
-        :to="`/products/${data.id}/edit`"
+        :to="`/products/${data.slug}/edit`"
         class="flex items-center leading-[24px] gap-2"
       >
         <EditSvg />
@@ -60,7 +60,7 @@ onClickOutside(target, () => (isOpen.value = false));
 
       <div
         class="flex items-center text-red leading-[24px] gap-2 cursor-pointer"
-        @click="deleteProduct(data.id)"
+        @click="deleteProduct(data.slug)"
       >
         <TrashSvg />
         <span>Удалить товар</span>

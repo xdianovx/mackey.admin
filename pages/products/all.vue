@@ -8,7 +8,7 @@ const { products, isLoading } = storeToRefs(useProductsStore());
 
 const { data: colors } = await useApi("/admin/colors/", {});
 
-getProducts();
+await getProducts();
 </script>
 
 <template>

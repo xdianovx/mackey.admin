@@ -10,9 +10,6 @@ const storeData = ref({
   title: "",
   is_man: 0,
   is_woman: 0,
-  category_id: "",
-  collection_id: "",
-  type_id: "",
 });
 
 const storeProduct = async () => {
@@ -24,7 +21,7 @@ const storeProduct = async () => {
       is_woman: storeData.value.is_woman ? 1 : 0,
     },
     onResponse({ request, response, options }) {
-      const id = response._data.id;
+      const id = response._data.slug;
       router.push(`/products/${id}/edit`);
     },
   });
@@ -56,10 +53,6 @@ const deleteProduct = async () => {
     <ButtonCancel title="Отмена" link="/products/all" />
   </div>
 
-  <!-- <pre>
-    {{ propductData }}
-  </pre> -->
-
   <form
     v-if="!propductData"
     action=""
@@ -72,31 +65,6 @@ const deleteProduct = async () => {
       placeholder="Название товара"
       v-model="storeData.title"
     />
-
-    <div class="grid grid-cols-3 mt-8 gap-4">
-      <FormDropdown
-        :required="true"
-        :list="categories"
-        v-model="storeData.category_id"
-        label="Категория"
-        placeholder="Выберите категорию"
-      />
-      <FormDropdown
-        :required="true"
-        :list="collections"
-        label="Коллекция"
-        placeholder="Выберите коллекцию"
-        v-model="storeData.collection_id"
-      />
-      <FormDropdown
-        required="true"
-        :list="types"
-        v-if="storeData.category_id === 1"
-        label="Тип"
-        placeholder="Выберите тип"
-        v-model="storeData.type_id"
-      />
-    </div>
 
     <div class="mt-8">
       <!-- <FormRadioGroup title="Для кого?" :required="true" name="gender" /> -->
