@@ -25,7 +25,7 @@ onClickOutside(target, () => (isOpen.value = false));
 
       <div class="w-20 h-20 ml-2 rounded-md overflow-hidden">
         <img
-          :src="data.product_files[0].file"
+          :src="data.product_files[0]?.file"
           alt=""
           class="block w-full h-full object-cover"
         />
