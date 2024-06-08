@@ -40,36 +40,5 @@ export const useTypesStore = defineStore("myTypesStore", () => {
     });
   };
 
-  //   async update(slug) {
-  //     this.isLoading = true;
-  //     await $fetch(
-  //       `http://45.135.234.37:80/api/v1/admin/types/${slug}/delete`,
-  //       {
-  //         method: "DELETE",
-  //         headers: {
-  //           Authorization: token.value,
-  //         },
-  //       }
-  //     ).then(() => {
-  //       this.getAll();
-  //     });
-  //   },
-
-  //   async delete(slug) {
-  //     this.isLoading = true;
-  //     await $fetch(
-  //       `http://45.135.234.37:80/api/v1/admin/types/${slug}/delete`,
-  //       {
-  //         method: "DELETE",
-  //         headers: {
-  //           Authorization: token.value,
-  //         },
-  //       }
-  //     ).then(() => {
-  //       this.getAll();
-  //     });
-  //   },
-  // },
-
   return { types, store, remove, isLoading, all };
 });

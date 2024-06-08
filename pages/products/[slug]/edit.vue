@@ -5,6 +5,7 @@ import {
   Listbox,
   ListboxButton,
 } from "@headlessui/vue";
+import DropdownMulti from "~/components/Form/DropdownMulti.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -18,10 +19,16 @@ const coverRef = ref();
 const { all: getCategories } = useCategoriesStore();
 const { all: getCollections } = useCollectionsStore();
 const { all: getColors } = useColorsStore();
+const { all: getTypes } = useTypesStore();
+const { all: getGroups } = useGroupsStore();
+const { all: getMaterials } = useMaterialsStore();
 
 const { categories } = storeToRefs(useCategoriesStore());
 const { collections } = storeToRefs(useCollectionsStore());
 const { colors } = storeToRefs(useColorsStore());
+const { groups } = storeToRefs(useGroupsStore());
+const { types } = storeToRefs(useTypesStore());
+const { materials } = storeToRefs(useMaterialsStore());
 
 const { refresh } = await useApi(`/admin/products/${slug}/show`, {
   onResponse({ response, options, error }) {
@@ -62,8 +69,6 @@ const uploadMultiImage = (e) => {
   const files = e.target.files;
   coverRef.value = e.target.files;
 
-  console.log(coverRef.value);
-
   for (let i = 0; i < files.length; i++) {
     const reader = new FileReader();
     reader.onload = function (event) {
@@ -82,7 +87,6 @@ const storeProduct = async () => {
       fd.append(`files[]`, coverRef.value[i]);
     }
 
-    // fd.append(`files[]`, coverRef.value);
     coverRef.value = [];
     newImageArray.value = [];
 
@@ -99,8 +103,6 @@ const storeProduct = async () => {
     method: "POST",
     body: {
       ...productData.value,
-      category_id: productData.value.category,
-      collection_id: productData.value.category,
     },
     onResponse({ request, response, options }) {
       refresh();
@@ -113,9 +115,12 @@ const storeProduct = async () => {
   refresh();
 };
 
-getCollections();
-getCategories();
-getColors();
+await getCollections();
+await getCategories();
+await getColors();
+await getTypes();
+await getGroups();
+await getMaterials();
 </script>
 
 <template>
@@ -135,7 +140,6 @@ getColors();
   </div>
 
   <UiDivider class="mt-4" />
-  <pre></pre>
   <div
     class="px-8 py-4 text-[16px] bg-[#FEF0F4] rounded-md text-black mt-4 flex flex-col gap-2"
     v-if="storeServerError"
@@ -153,6 +157,15 @@ getColors();
         type="text"
         v-model="productData.title"
         placeholder=""
+      />
+
+      <FormDropdown
+        class="w-full mt-4"
+        :list="groups"
+        v-model="productData.group_product_id"
+        :activeId="productData.group_product_id"
+        label="Группа товаров"
+        placeholder="Выберите категорию"
       />
 
       <div class="flex flex-col gap-1 w-full mt-4">
@@ -197,26 +210,31 @@ getColors();
 
       <UiDivider class="mt-10" />
 
-      <div class="flex items-start gap-8 mt-10">
+      <div class="flex items-start gap-4 mt-10">
         <FormDropdown
           class="w-full"
           :required="true"
           :list="categories"
-          v-model="productData.category"
+          v-model="productData.category_id"
+          :activeId="productData.category_id"
           label="Категория"
           placeholder="Выберите категорию"
         />
+
         <FormDropdown
           class="w-full"
           :list="collections"
-          v-model="productData.collection"
+          v-model="productData.collection_id"
+          :activeId="productData.collection_id"
           label="Коллекция"
           placeholder="Выберите категорию"
         />
         <FormDropdown
           class="w-full"
-          :list="categories"
-          v-model="productData.category"
+          v-if="productData.category_id === 1"
+          :list="types"
+          v-model="productData.type_id"
+          :activeId="productData.type_id"
           label="Тип"
           placeholder="Выберите категорию"
         />
@@ -285,6 +303,27 @@ getColors();
             type="number"
             v-model="productData.height"
             placeholder=""
+          />
+        </div>
+
+        <div class="mt-6">
+          <!-- <FormDropdown
+            class="w-full"
+            :required="true"
+            :list="materials"
+            v-model="productData.materials"
+            :activeId="productData.materials"
+            label="Материалы"
+            placeholder="Выберите материал"
+          /> -->
+
+          <pre>
+            {{ productData.materials }}
+          </pre>
+          <DropdownMulti
+            :list="materials"
+            v-model="productData.materials"
+            :activeId="productData.materials"
           />
         </div>
       </div>

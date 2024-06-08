@@ -6,7 +6,9 @@ import {
   ListboxOptions,
   ListboxOption,
 } from "@headlessui/vue";
+
 const model = defineModel();
+const selectedPerson = ref();
 const props = defineProps([
   "label",
   "required",
@@ -16,7 +18,15 @@ const props = defineProps([
   "activeId",
   "placeholder",
 ]);
-const selectedPerson = ref({ title: props.placeholder });
+
+props.list.find((x) => {
+  x.id == props.activeId;
+});
+
+onMounted(() => {
+  const activeItem = props.list.find((x) => x.id === props?.activeId);
+  selectedPerson.value = activeItem;
+});
 </script>
 
 <template>
@@ -29,7 +39,9 @@ const selectedPerson = ref({ title: props.placeholder });
         <ListboxButton
           class="relative w-full cursor-default rounded-lg bg-white py-2 pl-4 pr-10 text-left border border-border focus:outline-none"
         >
-          <span class="block truncate">{{ selectedPerson.title }} </span>
+          <span class="block truncate">
+            {{ selectedPerson?.title }}
+          </span>
           <span
             class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
           >
@@ -49,7 +61,7 @@ const selectedPerson = ref({ title: props.placeholder });
               v-slot="{ active, selected }"
               v-for="item in list"
               :key="item.id"
-              @click="selectedPerson.title = item.title"
+              @click="selectedPerson = item"
               :value="item.id"
               as="template"
             >
