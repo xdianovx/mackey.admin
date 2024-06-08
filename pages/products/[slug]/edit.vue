@@ -272,7 +272,7 @@ await getMaterials();
         <FormInput
           label="Количество"
           type="number"
-          v-model="productData.product_count"
+          v-model="productData.product_quantity"
           placeholder=""
         />
 
