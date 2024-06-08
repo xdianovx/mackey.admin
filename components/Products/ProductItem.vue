@@ -23,8 +23,23 @@ onClickOutside(target, () => (isOpen.value = false));
     <div class="py-3 px-4 flex items-center">
       <FormCheckbox class="block" />
 
+      <div class="w-20 h-20 ml-2 rounded-md overflow-hidden">
+        <img
+          :src="data.product_files[0].file"
+          alt=""
+          class="block w-full h-full object-cover"
+        />
+      </div>
+
       <div class="flex flex-col ml-4">
         <h3 class="font-medium leading-[24px] text-[20px]">{{ data.title }}</h3>
+
+        <div class="flex gap-4 mt-2">
+          <p>{{ data.price }} BYN</p>
+          <p>{{ data.vendor_code }}</p>
+          <p v-if="data.is_man">Для него</p>
+          <p v-if="data.is_woman">Для нее</p>
+        </div>
       </div>
 
       <div class="ml-auto">
@@ -64,47 +79,6 @@ onClickOutside(target, () => (isOpen.value = false));
       >
         <TrashSvg />
         <span>Удалить товар</span>
-      </div>
-    </div>
-    <div class="p-4 flex flex-col gap-2">
-      <div class="flex items-center gap-4" v-for="list in data.product_options">
-        <div class="w-16 h-16 rounded-md overflow-hidden">
-          <img
-            v-if="list.product_files[0]?.file"
-            :src="list.product_files[0]?.file"
-            alt=""
-            class="w-full h-full object-cover"
-          />
-          <div class="w-16 h-16 bg-neutral-200 rounded-md" v-else></div>
-        </div>
-        <div class="text-[16px] font-medium w-[320px] mr-2">
-          {{ list.title_option }}
-        </div>
-
-        <div class="w-[80px]">{{ list.product_count }} шт.</div>
-
-        <div class="w-[120px]">{{ list.vendor_code }}</div>
-
-        <div class="flex gap-2 w-[120px]">
-          <div class="" v-for="item in list.colors">
-            <div
-              class="w-4 h-4 rounded-full"
-              :style="[{ background: colors.find((i) => i.slug == item).code }]"
-            ></div>
-          </div>
-        </div>
-
-        <div
-          class="text-red text-[12px] shrink-0"
-          v-if="list.product_count <= 0"
-        >
-          Нет в наличии
-        </div>
-        <div class="text-green text-[12px]" v-else>В наличии</div>
-
-        <div class="text-[16px] ml-auto" v-if="list.price">
-          {{ list.price }} BYN
-        </div>
       </div>
     </div>
   </div>

@@ -2,7 +2,6 @@
 import { CheckIcon, ChevronDownIcon } from "@heroicons/vue/20/solid";
 import {
   Listbox,
-  ListboxLabel,
   ListboxButton,
   ListboxOptions,
   ListboxOption,

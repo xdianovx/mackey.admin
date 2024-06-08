@@ -10,6 +10,9 @@ const storeData = ref({
   title: "",
   is_man: 0,
   is_woman: 0,
+  category_id: "",
+  collection_id: "",
+  type_id: "",
 });
 
 const storeProduct = async () => {
@@ -40,8 +43,6 @@ const deleteProduct = async () => {
     method: "POST",
     body: {
       ...storeData.value,
-      is_man: storeData.value.is_man ? 1 : 0,
-      is_woman: storeData.value.is_woman ? 1 : 0,
     },
   });
 };
@@ -52,6 +53,10 @@ const deleteProduct = async () => {
     <UiTitle tag="h1">Создать новый товар</UiTitle>
     <ButtonCancel title="Отмена" link="/products/all" />
   </div>
+
+  <!-- <pre>
+    {{ propductData }}
+  </pre> -->
 
   <form
     v-if="!propductData"
@@ -65,23 +70,6 @@ const deleteProduct = async () => {
       placeholder="Название товара"
       v-model="storeData.title"
     />
-
-    <div class="mt-8">
-      <!-- <FormRadioGroup title="Для кого?" :required="true" name="gender" /> -->
-
-      <!-- <FormCheckbox v-model="storeData.is_man" label="asd" /> -->
-      <div class="flex gap-4 items-center">
-        <div class="flex gap-1 items-center">
-          <input type="checkbox" id="for_men" v-model="storeData.is_man" />
-          <label for="for_men">Для него </label>
-        </div>
-
-        <div class="flex gap-1 items-center">
-          <input type="checkbox" id="for_women" v-model="storeData.is_woman" />
-          <label for="for_women">Для нее </label>
-        </div>
-      </div>
-    </div>
 
     <ButtonSubmit text="Создать товар" class="mt-4" />
   </form>
