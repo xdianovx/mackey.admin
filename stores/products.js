@@ -4,9 +4,9 @@ export const useProductsStore = defineStore("myProductsStore", () => {
   const products = ref([]);
   const isLoading = ref(false);
 
-  const all = async () => {
+  const all = () => {
     isLoading.value = true;
-    await $fetch(`http://45.135.234.37:80/api/v1/admin/products`, {
+    $fetch(`http://45.135.234.37:80/api/v1/admin/products`, {
       headers: {
         Authorization: `Bearer ${token.value}`,
       },

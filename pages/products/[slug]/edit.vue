@@ -115,12 +115,12 @@ const storeProduct = async () => {
   refresh();
 };
 
-await getCollections();
-await getCategories();
-await getColors();
-await getTypes();
-await getGroups();
-await getMaterials();
+getCollections();
+getCategories();
+getColors();
+getTypes();
+getGroups();
+getMaterials();
 </script>
 
 <template>

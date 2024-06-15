@@ -8,7 +8,7 @@ const { products, isLoading } = storeToRefs(useProductsStore());
 
 const { data: colors } = await useApi("/admin/colors/", {});
 
-await getProducts();
+getProducts();
 </script>
 
 <template>
@@ -28,7 +28,7 @@ await getProducts();
     <div class="mt-4 bg-[#F7F7F8] flex flex-col gap-2 rounded-[24px] p-[6px]">
       <Loader v-if="isLoading" />
       <ProductsProductItem
-        v-for="item in products"
+        v-for="item in products.data"
         :key="item.id"
         :data="item"
         :colors="colors"
