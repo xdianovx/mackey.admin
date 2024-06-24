@@ -19,14 +19,12 @@ const props = defineProps([
   "placeholder",
 ]);
 
-props.list.find((x) => {
+props.list?.find((x) => {
   x.id == props.activeId;
 });
 
-onMounted(() => {
-  const activeItem = props.list.find((x) => x.id === props?.activeId);
-  selectedPerson.value = activeItem;
-});
+const activeItem = props.list.find((x) => x.id === props?.activeId);
+selectedPerson.value = activeItem;
 </script>
 
 <template>
